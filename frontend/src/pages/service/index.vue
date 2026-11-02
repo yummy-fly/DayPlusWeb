@@ -117,10 +117,10 @@ function selectNav(key: string, label: string) {
 .hero { height: 760rpx; position: relative; overflow: hidden; background: #ebe8e2; }
 .hero-image { width: 100%; height: 100%; }
 .hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.06) 35%, rgba(0,0,0,.72)); }
-.hero-copy { position: absolute; left: 44rpx; right: 44rpx; bottom: 70rpx; display: flex; flex-direction: column; color: #fff; }
+.hero-copy { position: absolute; left: 44rpx; right: 44rpx; bottom: 52px; display: flex; flex-direction: column; color: #fff; }
 .eyebrow { color: rgba(255,255,255,.72); font-size: 18rpx; letter-spacing: 3rpx; }
 .hero-title { margin-top: 25rpx; white-space: pre-line; font-size: 48rpx; line-height: 1.45; font-weight: 300; letter-spacing: 4rpx; }
-.hero-link { width: fit-content; margin-top: 30rpx; padding-bottom: 10rpx; border-bottom: 1px solid rgba(255,255,255,.65); font-size: 22rpx; letter-spacing: 2rpx; }
+.hero-link { display:none; width: fit-content; margin-top: 30rpx; padding-bottom: 10rpx; border-bottom: 1px solid rgba(255,255,255,.65); font-size: 22rpx; letter-spacing: 2rpx; }
 .arrow { margin-left: 18rpx; }
 .entry-list { padding: 0 42rpx; }
 .entry { min-height: 126rpx; display: flex; align-items: center; border-bottom: 1px solid #dedcd7; }

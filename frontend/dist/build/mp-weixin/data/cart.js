@@ -1,0 +1,1 @@
+"use strict";exports.mockCartItems=[{id:"shirt-01-象牙白-M",productId:"shirt-01",color:"象牙白",size:"M",quantity:1,name:"真丝缎面衬衫",image:"/static/shirt.jpg",price:1980,category:"成衣"},{id:"bag-01-深黑-均码",productId:"bag-01",color:"深黑",size:"均码",quantity:1,name:"线条感皮革手袋",image:"/static/bag.jpg",price:2860,category:"手袋"}];

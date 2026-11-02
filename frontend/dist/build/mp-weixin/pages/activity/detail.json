@@ -1,0 +1,6 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "floating-cart": "../../components/FloatingCart"
+  }
+}

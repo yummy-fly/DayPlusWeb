@@ -1,0 +1,6 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "region-picker": "../../components/RegionPicker"
+  }
+}

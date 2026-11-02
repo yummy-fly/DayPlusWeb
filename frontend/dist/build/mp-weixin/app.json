@@ -1,0 +1,22 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/works/index",
+    "pages/works/detail",
+    "pages/works/product",
+    "pages/service/index",
+    "pages/activity/index",
+    "pages/points/index",
+    "pages/points/detail",
+    "pages/cart/index",
+    "pages/activity/detail",
+    "pages/appointment/index",
+    "pages/profile/index",
+    "pages/orders/index",
+    "pages/coupons/index",
+    "pages/appointments/index",
+    "pages/profile/detail",
+    "pages/address/index"
+  ],
+  "usingComponents": {}
+}

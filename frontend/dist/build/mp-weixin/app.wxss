@@ -1,0 +1,2 @@
+:root{--ink: #171716;--muted: #7c7a76;--line: #dedcd7;--paper: #f8f7f4;--warm: #ebe7df}*{box-sizing:border-box}page,body{margin:0;background:var(--paper);color:var(--ink);font-family:Helvetica Neue,PingFang SC,Arial,sans-serif}button{border:0;padding:0;background:none;color:inherit}.app-shell{min-height:100vh;background:var(--paper)}
+page{--status-bar-height:25px;--top-window-height:0px;--window-top:0px;--window-bottom:0px;--window-left:0px;--window-right:0px;--window-magin:0px}[data-c-h="true"]{display: none !important;}

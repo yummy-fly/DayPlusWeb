@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "floating-cart": "../../components/FloatingCart",
+    "region-picker": "../../components/RegionPicker"
+  }
+}

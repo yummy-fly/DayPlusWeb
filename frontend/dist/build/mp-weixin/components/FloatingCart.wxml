@@ -1,0 +1,1 @@
+<view class="floating-cart data-v-6551ef86" role="button" aria-label="{{c}}" catchtap="{{d}}"><view class="cart-icon data-v-6551ef86"><view class="cart-handle data-v-6551ef86"/></view><text wx:if="{{a}}" class="cart-count data-v-6551ef86">{{b}}</text></view>

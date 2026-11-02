@@ -1,0 +1,22 @@
+{
+  "name": "DAY+ 时尚精品",
+  "appid": "__UNI__DAYPLUS",
+  "description": "DAY+ 时尚精品微信小程序",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true
+  },
+  "h5": {
+    "title": "DAY+ 时尚精品",
+    "router": { "mode": "hash" }
+  }
+}

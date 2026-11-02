@@ -1,0 +1,1 @@
+"use strict";const t=require("./request.js"),i=require("../data/activity.js");exports.fetchActivities=function(e){return t.request("/activities",()=>i.activityDetails.filter(t=>t.date.startsWith(`${e}-`)).map(({content:t,...i})=>i),{})},exports.fetchActivityDetail=function(e){return t.request("/activities/detail",()=>i.activityDetails.find(t=>t.id===e)??null,{})};

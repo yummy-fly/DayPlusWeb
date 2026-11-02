@@ -139,7 +139,7 @@ function selectNav(key: string, label: string) {
 <template>
   <view class="works-page">
     <view class="topbar">
-      <view class="brand">DAY<span>+</span></view>
+      <image class="brand" src="/static/dayplus-logo.png" mode="aspectFit" />
       <text class="topbar-label">作品</text>
       <text class="topbar-index">WORKS / 01</text>
     </view>
@@ -219,7 +219,7 @@ function selectNav(key: string, label: string) {
 <style scoped>
 .works-page { min-height: 100vh; padding-bottom: calc(128rpx + env(safe-area-inset-bottom)); background: #f8f7f4; color: #171716; }
 .topbar { height: 112rpx; padding: 42rpx 42rpx 0; display: flex; align-items: flex-start; border-bottom: 1px solid #dedcd7; }
-.brand { font-size: 25rpx; font-weight: 700; letter-spacing: 5rpx; }.brand span { font-weight: 400; }.topbar-label { margin-left: 30rpx; color: #8b8883; font-size: 21rpx; letter-spacing: 2rpx; }.topbar-index { margin-left: auto; color: #a09b93; font-size: 16rpx; letter-spacing: 2rpx; }
+.brand { width: 90rpx; height: 30rpx; display: block; flex-shrink: 0; }.topbar-label { margin-left: 30rpx; color: #8b8883; font-size: 21rpx; letter-spacing: 2rpx; }.topbar-index { margin-left: auto; color: #a09b93; font-size: 16rpx; letter-spacing: 2rpx; }
 .intro { padding: 76rpx 42rpx 52rpx; }.eyebrow, .collection-kicker { color: #8b8883; font-size: 18rpx; letter-spacing: 3rpx; }.title { display: block; margin-top: 25rpx; font-size: 64rpx; font-weight: 300; letter-spacing: 8rpx; }.subtitle { display: block; max-width: 520rpx; margin-top: 22rpx; color: #8b8883; font-size: 21rpx; line-height: 1.8; letter-spacing: 1rpx; }
 .category-scroll { width: 100%; border-top: 1px solid #dedcd7; border-bottom: 1px solid #dedcd7; }.category-list { display: inline-flex; padding: 27rpx 42rpx 24rpx; gap: 45rpx; white-space: nowrap; }.category { position: relative; color: #9b968e; font-size: 22rpx; letter-spacing: 2rpx; }.category.active { color: #171716; }.category.active::after { content: ''; position: absolute; left: 0; right: 0; bottom: -25rpx; height: 3rpx; background: #171716; }
 .collection-head { padding: 62rpx 42rpx 30rpx; display: flex; align-items: flex-end; justify-content: space-between; }.collection-title { display: block; margin-top: 15rpx; font-size: 34rpx; letter-spacing: 4rpx; }.collection-count { color: #a09b93; font-size: 16rpx; letter-spacing: 2rpx; }

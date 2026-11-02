@@ -1,10 +1,76 @@
 <script setup lang="ts">
 import FloatingCart from '../../components/FloatingCart.vue'
 import { ref, onMounted } from 'vue'
-import { fetchHeroSlides, fetchLooks, fetchProducts, fetchPoints, isLoggedIn, login as apiLogin } from '../../api/home'
+import { fetchHeroSlides, fetchLooks, fetchProducts, fetchPoints, isLoggedIn, loginState, login as apiLogin } from '../../api/home'
 import { onShow } from '@dcloudio/uni-app'
 import type { HeroSlide, Look, Product } from '../../data/home'
 import { workProductIds } from '../../data/works'
+import { fetchCurrentSalons } from '../../api/salon'
+import type { Salon } from '../../data/salon'
+
+const salons = ref<Salon[]>([])
+const salonIndex = ref(0)
+const salonTouchX = ref(0)
+
+function swipeSalon(clientX: number) {
+  const distance = clientX - salonTouchX.value
+  if (Math.abs(distance) > 50 && salons.value.length > 1) changeSalon(distance < 0 ? 1 : -1)
+}
+
+function changeSalon(direction: number) {
+  salonIndex.value = (salonIndex.value + direction + salons.value.length) % salons.value.length
+}
+
+function openCurrentSalon() {
+  const salon = salons.value[salonIndex.value]
+  if (salon) openSalon(salon)
+}
+const salonLoading = ref(true)
+const salonFailed = ref(false)
+const showSalonAd = ref(false)
+const nearestSalon = ref<Salon | null>(null)
+const salonOpening = ref(false)
+const adStorageKey = 'dayplus-salon-ad-seen'
+
+async function loadSalons() {
+  salonLoading.value = true
+  salonFailed.value = false
+  try {
+    salons.value = await fetchCurrentSalons()
+    nearestSalon.value = salons.value.find((item) => new Date(`${item.date}T${item.startTime}:00`).getTime() > Date.now()) ?? null
+    if (nearestSalon.value && !uni.getStorageSync(adStorageKey)) {
+      showSalonAd.value = true
+      uni.setStorageSync(adStorageKey, true)
+    }
+  } catch (error) {
+    console.error('[Salon] 首页活动加载失败', error)
+    salonFailed.value = true
+  } finally {
+    salonLoading.value = false
+  }
+}
+
+async function openSalon(salon: Salon) {
+  if (salonOpening.value) return
+  salonOpening.value = true
+  try {
+    if (!isLoggedIn()) {
+      const result = await uni.showModal({ title: '登录后查看沙龙', content: '登录后即可查看详情并预约参与本场活动。', confirmText: '登录继续' })
+      if (!result.confirm) return
+      await apiLogin()
+    }
+    showSalonAd.value = false
+    const path = `/pages/salon/detail?id=${encodeURIComponent(salon.id)}`
+    await uni.navigateTo({ url: path })
+  } catch (error) {
+    console.error('[Salon] 登录失败', error)
+    uni.showToast({ title: '登录失败，请重试', icon: 'none' })
+  } finally {
+    salonOpening.value = false
+  }
+}
+
+onMounted(loadSalons)
 
 /* ---------- 细线图标（SVG data-uri，无边框，贴合黑白极简风格） ---------- */
 const svgIcon = (paths: string, filled = false) =>
@@ -64,15 +130,20 @@ const activeSlide = ref(0)
 const activeNav = ref('home')
 const showNotice = ref(false)
 const noticeText = ref('')
-const loggedIn = ref(false)
+const loggedIn = loginState
+const loggingIn = ref(false)
 const points = ref(0)
 const favorites = ref<Set<string>>(new Set())
 
 onShow(async () => {
   loggedIn.value = isLoggedIn()
-  if (!loggedIn.value) return
+  if (!loggedIn.value) {
+    points.value = 0
+    return
+  }
   try {
-    points.value = (await fetchPoints()).points
+    const result = await fetchPoints()
+    points.value = isLoggedIn() ? result.points : 0
   } catch {
     notify('积分加载失败，请稍后重试')
   }
@@ -159,6 +230,8 @@ function goTo(label: string) {
 }
 
 async function login() {
+  if (loggingIn.value) return
+  loggingIn.value = true
   try {
     const res = await apiLogin()
     loggedIn.value = true
@@ -166,6 +239,8 @@ async function login() {
     notify('登录成功')
   } catch (e) {
     notify('登录失败，请稍后重试')
+  } finally {
+    loggingIn.value = false
   }
 }
 
@@ -211,6 +286,31 @@ function selectNav(key: string, label: string) {
       <view class="hero-dots"><text v-for="(_, index) in heroSlides" :key="index" :class="{ active: activeSlide === index }" /></view>
     </view>
 
+    <view class="section salon-section">
+      <view class="section-heading"><view><text class="eyebrow dark">DAY+ / SALON</text><text class="section-title">当期主题沙龙</text></view><text class="section-count">{{ new Date().getMonth() + 1 }}月 · {{ salons.length }}场</text></view>
+      <view v-if="salonLoading" class="salon-state">正在加载本月沙龙…</view>
+      <view v-else-if="salonFailed" class="salon-state" @tap="loadSalons">加载失败，点击重试</view>
+      <view v-else-if="!salons.length" class="salon-state">本月沙龙即将公布，敬请期待</view>
+      <view v-else class="salon-carousel">
+      <view class="salon-list" @touchstart="salonTouchX = $event.changedTouches[0].clientX" @touchend="swipeSalon($event.changedTouches[0].clientX)">
+        <template v-for="salon in salons.slice(salonIndex, salonIndex + 1)" :key="salon.id">
+        <view class="salon-card" @tap="openCurrentSalon">
+          <view class="salon-image-wrap"><image :src="salon.cover" mode="aspectFill" @error="salon.cover = salon.fallbackCover" /><text class="salon-tag">{{ salon.access === 'members' ? '银卡及以上会员专享' : '对外开放' }}</text></view>
+          <view class="salon-copy"><text class="salon-date">{{ salon.date.replace(/-/g, '.') }}　{{ salon.startTime }}</text><text class="salon-title">{{ salon.title }}</text><text class="salon-subtitle">{{ salon.subtitle }}</text><view class="salon-bottom"><text>{{ salon.price ? `¥${salon.price} / 位` : '会员免费' }}</text><text>查看活动　↗</text></view></view>
+        </view>
+        </template>
+      </view>
+      <view v-if="salons.length > 1" class="salon-dots">
+        <view
+          v-for="(salon, index) in salons"
+          :key="salon.id"
+          :class="['salon-dot', { active: salonIndex === index }]"
+          @tap="salonIndex = index"
+        />
+      </view>
+      </view>
+    </view>
+
     <view class="section collection-section">
       <view class="section-heading"><view><text class="eyebrow dark">FEATURED LOOKS</text><text class="section-title">成品搭配</text></view><text class="section-count">0{{ looks.length - 1 }} LOOKS</text></view>
       <scroll-view scroll-x class="look-scroll" :show-scrollbar="false">
@@ -254,11 +354,11 @@ function selectNav(key: string, label: string) {
           <text class="points-tip">{{ loggedIn ? '消费可累积积分，用于兑换好礼' : '登录后可查看积分余额' }}</text>
         </view>
         <view v-if="loggedIn" class="points-balance"><text class="points-value">{{ points.toLocaleString() }}</text><text class="points-unit">积分</text></view>
-        <view v-else class="points-login" @click="login"><text>登录查看</text><text class="points-login-arrow">›</text></view>
+        <view v-else class="points-login" @click="login"><text>{{ loggingIn ? '正在登录…' : '登录查看' }}</text><text class="points-login-arrow">›</text></view>
       </view>
     </view>
 
-    <view class="footer-mark">DAY<span>+</span><text>WEAR YOUR OWN STORY</text></view>
+    <view class="footer-mark"><image class="footer-logo" src="/static/dayplus-logo.png" mode="aspectFit" /><text>WEAR YOUR OWN STORY</text></view>
     <view v-if="showNotice" class="notice">{{ noticeText }}</view>
 
     <view class="bottom-nav">
@@ -268,6 +368,12 @@ function selectNav(key: string, label: string) {
       </view>
     </view>
     <FloatingCart />
+    <view v-if="showSalonAd && nearestSalon" class="salon-ad-mask" @tap="showSalonAd = false" @touchmove.stop.prevent>
+      <view class="salon-ad" @tap.stop>
+        <view @tap="openSalon(nearestSalon)"><image class="salon-ad-image" :src="nearestSalon.cover" mode="aspectFill" @error="nearestSalon.cover = nearestSalon.fallbackCover" /><view class="salon-ad-copy"><text class="eyebrow dark">YOU ARE INVITED / DAY+ SALON</text><text class="salon-ad-title">{{ nearestSalon.title }}</text><text class="salon-subtitle">{{ nearestSalon.subtitle }}</text><text class="salon-date">{{ nearestSalon.date.replace(/-/g, '.') }}　{{ nearestSalon.startTime }}</text><button class="salon-ad-cta" :disabled="salonOpening">{{ salonOpening ? '正在进入…' : '探索沙龙 · 预约参与' }}</button></view></view>
+        <button class="salon-ad-close" aria-label="关闭活动弹窗" @tap.stop="showSalonAd = false">×</button>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -298,6 +404,33 @@ function selectNav(key: string, label: string) {
 /* 查看全部：仅文字，右对齐，无边框 */
 .more-link { font-size: 23rpx; color: #171716; letter-spacing: 1rpx; padding-bottom: 6rpx; }
 .more-arrow { font-size: 25rpx; }
+
+.salon-carousel { position: relative; margin-top: 38rpx; padding: 0 0; }
+.salon-list { height: 620rpx; }
+.salon-card { margin: 0 4rpx; }
+.salon-dots { display: flex; justify-content: center; gap: 12rpx; margin-top: 24rpx; }
+.salon-dot { width: 16rpx; height: 1px; background: #d9d4cb; transition: all .25s ease; }
+.salon-dot.active { width: 40rpx; background: #171716; }
+.salon-title, .salon-subtitle { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.salon-card { background: #fdfcf9; border: 1px solid #e5e2dc; overflow: hidden; }
+.salon-image-wrap { position: relative; height: 320rpx; background: #e9e6e0; }
+.salon-image-wrap image { width: 100%; height: 100%; }
+.salon-tag { position: absolute; left: 24rpx; top: 24rpx; padding: 12rpx 18rpx; background: rgba(248,247,244,.94); font-size: 19rpx; letter-spacing: 2rpx; }
+.salon-copy { padding: 28rpx; }
+.salon-date { display: block; color: #8b8883; font-size: 20rpx; letter-spacing: 1rpx; }
+.salon-title { display: block; margin-top: 18rpx; font-size: 30rpx; letter-spacing: 2rpx; }
+.salon-subtitle { display: block; margin-top: 14rpx; color: #8b8883; font-size: 21rpx; line-height: 1.7; }
+.salon-bottom { display: flex; justify-content: space-between; margin-top: 28rpx; padding-top: 22rpx; border-top: 1px solid #e5e2dc; font-size: 22rpx; }
+.salon-state { padding: 48rpx 0; color: #8b8883; font-size: 23rpx; }
+.salon-ad-mask { position: fixed; inset: 0; z-index: 100; background: rgba(23,23,22,.65); display: flex; align-items: center; justify-content: center; }
+.salon-ad { position: relative; width: 620rpx; max-width: 86vw; background: #f8f7f4; }
+.salon-ad-image { display: block; width: 100%; height: 400rpx; }
+.salon-ad-copy { padding: 40rpx 34rpx; }
+.salon-ad-title { display: block; margin-top: 24rpx; font-size: 36rpx; font-weight: 300; letter-spacing: 3rpx; }
+.salon-ad-copy .salon-date { margin-top: 26rpx; }
+.salon-ad-cta { margin-top: 32rpx; border-radius: 0; background: #171716; color: white; font-size: 24rpx; line-height: 88rpx; }
+.salon-ad-cta::after, .salon-ad-close::after { border: 0; }
+.salon-ad-close { position: absolute; top: 8rpx; right: 8rpx; width: 72rpx; height: 72rpx; padding: 0; line-height: 68rpx; border-radius: 50%; background: rgba(248,247,244,.95); font-size: 40rpx; }
 
 /* 成品搭配 */
 .look-scroll { width: calc(100% + 42rpx); margin-top: 38rpx; white-space: nowrap; }
@@ -339,8 +472,8 @@ function selectNav(key: string, label: string) {
 .points-login { display: flex; align-items: center; gap: 6rpx; font-size: 22rpx; letter-spacing: 1rpx; }
 .points-login-arrow { font-size: 28rpx; }
 
-.footer-mark { padding: 90rpx 0 160rpx; text-align: center; font-size: 30rpx; font-weight: 700; letter-spacing: 7rpx; }
-.footer-mark span { font-weight: 400; }
+.footer-mark { padding: 90rpx 0 160rpx; text-align: center; }
+.footer-logo { display: block; width: 108rpx; height: 36rpx; margin: 0 auto; }
 .footer-mark text { display: block; margin-top: 18rpx; color: #a29d95; font-size: 15rpx; font-weight: 400; letter-spacing: 3rpx; }
 
 .notice { position: fixed; left: 50%; bottom: 170rpx; transform: translateX(-50%); z-index: 20; padding: 22rpx 32rpx; background: rgba(23,23,22,.9); color: #fff; font-size: 22rpx; white-space: nowrap; }

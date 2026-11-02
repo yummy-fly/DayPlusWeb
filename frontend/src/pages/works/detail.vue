@@ -85,7 +85,7 @@ function goBack() {
   <view class="look-page">
     <view class="topbar">
       <view class="back" role="button" aria-label="返回" @tap="goBack"><view class="back-arrow" /></view>
-      <text class="brand">DAY+</text>
+      <image class="brand" src="/static/dayplus-logo.png" mode="aspectFit" />
       <text class="topbar-label">造型详情</text>
     </view>
 
@@ -133,7 +133,7 @@ function goBack() {
           </view>
         </view>
       </view>
-      <view class="footer"><text class="footer-brand">DAY+</text><text>日常之中，自有风格。</text></view>
+      <view class="footer"><image class="footer-brand" src="/static/dayplus-logo.png" mode="aspectFit" /><text>日常之中，自有风格。</text></view>
     </template>
     <view v-else class="status">该造型暂不存在，请返回选择其他造型。</view>
     <FloatingCart />
@@ -145,7 +145,7 @@ function goBack() {
 .topbar { position: relative; height: calc(108rpx + var(--status-bar-height, 0px)); padding: var(--status-bar-height, 0px) 36rpx 0; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #dedcd7; }
 .back { position: absolute; left: 24rpx; bottom: 18rpx; width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; }
 .back-arrow { width: 19rpx; height: 19rpx; border-left: 1px solid #171716; border-bottom: 1px solid #171716; transform: rotate(45deg); }
-.brand { font-size: 27rpx; font-weight: 600; letter-spacing: 6rpx; }
+.brand { width: 90rpx; height: 30rpx; display: block; flex-shrink: 0; }
 .topbar-label { position: absolute; right: 36rpx; bottom: 40rpx; font-size: 19rpx; color: #8b8883; letter-spacing: 2rpx; }
 .gallery { position: relative; background: #ebe8e2; }
 .look-swiper { width: 100%; height: 960rpx; }
@@ -178,7 +178,7 @@ function goBack() {
 .favorite image { width: 30rpx; height: 30rpx; }
 .price { display: block; padding-top: 10rpx; font-size: 24rpx; letter-spacing: 1rpx; text-align: left; }
 .footer { padding: 76rpx 42rpx 50rpx; display: flex; flex-direction: column; align-items: center; gap: 18rpx; font-size: 19rpx; color: #9b968e; letter-spacing: 3rpx; }
-.footer-brand { font-size: 26rpx; color: #171716; letter-spacing: 5rpx; }
+.footer-brand { width: 90rpx; height: 30rpx; display: block; flex-shrink: 0; }
 .status { min-height: 60vh; padding: 80rpx 42rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30rpx; color: #8b8883; font-size: 24rpx; text-align: center; }
 .retry { padding: 0 36rpx; border-radius: 0; background: #171716; color: #fff; font-size: 24rpx; }
 @media (min-width: 700px) { .look-page { max-width: 540px; margin: 0 auto; box-shadow: 0 0 50px rgba(0,0,0,.08); } }

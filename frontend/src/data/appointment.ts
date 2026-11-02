@@ -19,8 +19,7 @@ export interface Stylist {
 
 export const appointmentCategories: AppointmentCategory[] = [
   { id: 'styling', name: '时尚搭配服务', description: '专属造型顾问，为日常穿搭提供灵感', duration: '约 60 分钟', price: '免费预约' },
-  { id: 'full-look', name: '全套造型服务', description: '从妆发到服饰，打造完整个人形象', duration: '约 120 分钟', price: '免费预约' },
-  { id: 'salon', name: '沙龙活动', description: '参与主题分享，探索风格与生活方式', duration: '约 90 分钟', price: '免费预约' }
+  { id: 'full-look', name: '全套造型服务', description: '从妆发到服饰，打造完整个人形象', duration: '约 120 分钟', price: '免费预约' }
 ]
 
 export const stylists: Stylist[] = [

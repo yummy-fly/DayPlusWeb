@@ -9,6 +9,7 @@
     "pages/points/index",
     "pages/points/detail",
     "pages/cart/index",
+    "pages/salon/detail",
     "pages/activity/detail",
     "pages/appointment/index",
     "pages/profile/index",

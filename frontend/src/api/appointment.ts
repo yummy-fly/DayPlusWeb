@@ -1,4 +1,5 @@
 import { request } from './request'
+import { memberProfile } from '../data/profile'
 import { appointmentCategories, appointmentReminder, appointmentShops, appointmentSlots, stylists } from '../data/appointment'
 import type { AppointmentCategory, Stylist } from '../data/appointment'
 
@@ -16,24 +17,34 @@ export interface AppointmentRecord {
   note: string
   status: AppointmentStatus
   createdAt: string
+  salonId?: string
+  amount?: number
+  paymentMethod?: 'wechat' | 'balance' | 'free'
 }
 
 const appointmentStorageKey = 'dayplus-appointments'
 
-function readAppointments(): AppointmentRecord[] {
+export function readAppointments(): AppointmentRecord[] {
   const stored: unknown = uni.getStorageSync(appointmentStorageKey)
-  return Array.isArray(stored) ? stored as AppointmentRecord[] : []
+  const items = Array.isArray(stored) ? stored as AppointmentRecord[] : []
+  const cleanupKey = 'dayplus-salon-cancelled-cleanup-v1'
+  if (!uni.getStorageSync(cleanupKey)) {
+    const cleaned = items.filter((item) => !(item.status === 'cancelled' && (item.salonId || item.category === 'salon' || item.categoryName.includes('沙龙'))))
+    if (cleaned.length !== items.length) saveAppointments(cleaned)
+    uni.setStorageSync(cleanupKey, true)
+    return cleaned
+  }
+  return items
 }
 
-function saveAppointments(items: AppointmentRecord[]) {
+export function saveAppointments(items: AppointmentRecord[]) {
   uni.setStorageSync(appointmentStorageKey, items)
 }
 
 function seedAppointments(): AppointmentRecord[] {
   return [
     { id: 'appointment-demo-1', category: 'styling', categoryName: '时尚搭配服务', shop: '香奈儿精品店·国贸店', date: '2026-11-08', slot: '14:30', stylist: 's1', stylistName: '林知夏', note: '希望了解秋冬通勤搭配。', status: 'confirmed', createdAt: '2026-10-25T10:00:00.000Z' },
-    { id: 'appointment-demo-2', category: 'full-look', categoryName: '全套造型服务', shop: '香奈儿精品店·国贸店', date: '2026-09-18', slot: '11:30', stylist: 's2', stylistName: '陈予安', note: '参加重要场合前的整体造型。', status: 'completed', createdAt: '2026-09-01T10:00:00.000Z' },
-    { id: 'appointment-demo-3', category: 'salon', categoryName: '沙龙活动', shop: '香奈儿精品店·国贸店', date: '2026-08-12', slot: '16:00', stylist: 's3', stylistName: '许清禾', note: '', status: 'cancelled', createdAt: '2026-08-01T10:00:00.000Z' }
+    { id: 'appointment-demo-2', category: 'full-look', categoryName: '全套造型服务', shop: '香奈儿精品店·国贸店', date: '2026-09-18', slot: '11:30', stylist: 's2', stylistName: '陈予安', note: '参加重要场合前的整体造型。', status: 'completed', createdAt: '2026-09-01T10:00:00.000Z' }
   ]
 }
 
@@ -101,7 +112,18 @@ export function fetchAppointments() {
 export function cancelAppointment(id: string) {
   return request<{ success: boolean }>('/appointments/cancel', () => {
     const items = readAppointments()
-    saveAppointments(items.map((item) => item.id === id && item.status === 'confirmed' ? { ...item, status: 'cancelled' } : item))
+    const record = items.find((item) => item.id === id && item.status === 'confirmed')
+    if (!record) return { success: true }
+    const storedBalance = uni.getStorageSync('dayplus-member-balance')
+    const balance = typeof storedBalance === 'number' ? storedBalance : memberProfile.balance
+    const refundToBalance = !!record.salonId && record.paymentMethod === 'balance' && (record.amount ?? 0) > 0
+    try {
+      if (refundToBalance) uni.setStorageSync('dayplus-member-balance', balance + record.amount!)
+      saveAppointments(items.map((item) => item.id === id ? { ...item, status: 'cancelled' } : item))
+    } catch (error) {
+      if (refundToBalance) uni.setStorageSync('dayplus-member-balance', balance)
+      throw error
+    }
     return { success: true }
   }, { method: 'POST', data: { id } })
 }

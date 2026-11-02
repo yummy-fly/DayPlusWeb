@@ -43,7 +43,7 @@ function goBack() {
   <view class="detail-page">
     <view class="topbar">
       <view class="back" role="button" aria-label="返回" @tap="goBack"><view class="back-arrow" /></view>
-      <text class="brand">DAY+</text><text class="topbar-label">活动详情</text>
+      <image class="brand" src="/static/dayplus-logo.png" mode="aspectFit" /><text class="topbar-label">活动详情</text>
     </view>
     <view v-if="loading" class="status">正在加载活动…</view>
     <view v-else-if="failed" class="status"><text>加载失败，请稍后重试</text><button class="retry" @tap="loadDetail">重新加载</button></view>
@@ -62,7 +62,7 @@ function goBack() {
           <text v-else class="paragraph">{{ block.text }}</text>
         </view>
       </view>
-      <view class="footer"><text class="footer-brand">DAY+</text><text>日常之中，自有风格。</text></view>
+      <view class="footer"><image class="footer-brand" src="/static/dayplus-logo.png" mode="aspectFit" /><text>日常之中，自有风格。</text></view>
     </template>
     <view v-else class="status"><text>该活动暂不存在</text><button class="retry" @tap="goBack">返回活动日历</button></view>
     <FloatingCart />
@@ -74,7 +74,7 @@ function goBack() {
 .topbar { position: relative; height: calc(108rpx + var(--status-bar-height, 0px)); padding: var(--status-bar-height, 0px) 36rpx 0; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #dedcd7; }
 .back { position: absolute; left: 24rpx; bottom: 18rpx; width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; }
 .back-arrow { width: 19rpx; height: 19rpx; border-left: 1px solid #171716; border-bottom: 1px solid #171716; transform: rotate(45deg); }
-.brand { font-size: 27rpx; font-weight: 600; letter-spacing: 6rpx; }
+.brand { width: 90rpx; height: 30rpx; display: block; flex-shrink: 0; }
 .topbar-label { position: absolute; right: 36rpx; bottom: 40rpx; font-size: 19rpx; color: #8b8883; letter-spacing: 2rpx; }
 .intro { padding: 48rpx 42rpx 42rpx; }
 .eyebrow { font-size: 17rpx; letter-spacing: 3rpx; color: #8b8883; }
@@ -86,7 +86,7 @@ function goBack() {
 .content-block.text { padding: 0 42rpx; margin-bottom: 30rpx; }
 .paragraph { display: block; font-size: 25rpx; line-height: 2; color: #77736c; letter-spacing: 1rpx; white-space: pre-line; }
 .footer { margin: 54rpx 42rpx 0; padding: 44rpx 0 50rpx; border-top: 1px solid #dedcd7; display: flex; flex-direction: column; align-items: center; gap: 18rpx; font-size: 19rpx; color: #9b968e; letter-spacing: 3rpx; }
-.footer-brand { color: #171716; font-size: 26rpx; letter-spacing: 5rpx; }
+.footer-brand { width: 90rpx; height: 30rpx; display: block; flex-shrink: 0; }
 .status { min-height: 60vh; padding: 80rpx 42rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30rpx; color: #8b8883; font-size: 24rpx; text-align: center; }
 .retry { padding: 0 36rpx; border-radius: 0; background: #171716; color: #fff; font-size: 24rpx; }
 @media (min-width: 700px) { .detail-page { box-shadow: 0 0 50px rgba(0,0,0,.08); } }

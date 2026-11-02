@@ -23,9 +23,9 @@ export function request<T>(
   options: RequestOptions = {}
 ): Promise<T> {
   if (USE_MOCK) {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockLoader() as T), MOCK_DELAY)
-    })
+    return new Promise<void>((resolve) => {
+      setTimeout(resolve, MOCK_DELAY)
+    }).then(mockLoader)
   }
   return new Promise((resolve, reject) => {
     uni.request({

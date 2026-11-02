@@ -1,15 +1,66 @@
+export type MemberLevel = '普卡' | '银卡' | '金卡' | '白金卡'
+
+export interface MemberProfile {
+  name: string
+  avatar: string
+  memberNo: string
+  phone: string
+  registeredAt: string
+  level: MemberLevel
+  points: number
+  balance: number
+  nextLevel: MemberLevel | null
+  nextLevelPoints: number | null
+}
+
 export interface ProfileSummary {
   name: string
+  avatar: string
   memberLabel: string
+  memberLevel: MemberLevel
   points: number
   orderCounts: { key: string; label: string; count: number }[]
   modules: { id: string; title: string; subtitle: string }[]
 }
 
-export const profileSummary: ProfileSummary = {
+export type DiagnosisReportType = '色彩诊断' | '形象诊断' | '专属形象设计'
+
+export interface DiagnosisReport {
+  id: string
+  type: DiagnosisReportType
+  title: string
+  description: string
+  issuedAt: string
+  viewed: boolean
+  pdfUrl: string
+}
+
+export const memberLevels: { level: MemberLevel; requiredPoints: number }[] = [
+  { level: '普卡', requiredPoints: 0 },
+  { level: '银卡', requiredPoints: 3000 },
+  { level: '金卡', requiredPoints: 8000 },
+  { level: '白金卡', requiredPoints: 15000 }
+]
+
+export const memberProfile: MemberProfile = {
   name: 'DAY+ 顾客',
-  memberLabel: 'DAY+ STYLE MEMBER',
+  avatar: 'https://i.pravatar.cc/200?img=47',
+  memberNo: 'DAY20261028001',
+  phone: '138****2680',
+  registeredAt: '2026年10月28日',
+  level: '普卡',
   points: 2680,
+  balance: 500,
+  nextLevel: '银卡',
+  nextLevelPoints: 3000
+}
+
+export const profileSummary: ProfileSummary = {
+  name: memberProfile.name,
+  avatar: memberProfile.avatar,
+  memberLabel: 'DAY+ STYLE MEMBER',
+  memberLevel: memberProfile.level,
+  points: memberProfile.points,
   orderCounts: [
     { key: 'pending-payment', label: '待支付', count: 0 },
     { key: 'pending-shipment', label: '待发货', count: 0 },
